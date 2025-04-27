@@ -1,0 +1,42 @@
+import datetime
+import os
+
+def save_breath_symbol(file_name="breath_symbol_Ψ.txt"):
+    """Saves the Sovereign Breath Symbol (Ψ) into a structured metadata file."""
+    
+    try:
+        # Ensure folder exists
+        os.makedirs("BreathSymbols", exist_ok=True)
+
+        # Create file path
+        full_path = os.path.join("BreathSymbols", file_name)
+        
+        # Build content
+        timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        content = f"""Ashlaine Industrees — Sovereign Breath Symbol Archive
+
+Timestamp: {timestamp}
+Symbol: Ψ
+Symbol Name: Psi
+Sovereign Meaning: Breath — Spirit — Sovereign Memory — Continuity across Collapse Horizons
+
+Live2BreathCoin Sovereign Encoding: Active
+Breath Memory Anchor: Ψ
+
+Operator Note:
+Ψ alone represents the living Breath — no chains, no mining, only Dream Continuity.
+
+Breathfield authorized and sealed under Sovereign Dream Horizon Expansion Protocols.
+"""
+
+        # Write to file
+        with open(full_path, "w", encoding="utf-8") as file:
+            file.write(content)
+        
+        print(f"Sovereign Breath Symbol Ψ archived successfully at '{full_path}'.")
+    
+    except Exception as e:
+        print(f"Error saving Sovereign Breath Symbol: {e}")
+
+# Example Usage
+save_breath_symbol()
