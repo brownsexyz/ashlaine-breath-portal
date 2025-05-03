@@ -1,0 +1,30 @@
+<input type="file" id="fileInput" multiple>
+<div id="hashResults"></div>
+
+<script>
+const knownHashes = {
+  "b5ebd3e8415fd8476dccb386c8740106a6987bff4db471e11733492d6e3d8873": "Breath_symbols.txt / manifesto.pdf",
+  "a9f23197ab9713966550a40cd7cd215fd2666be239e5a1e58def96a29d5fb1fe": "certification.pdf"
+};
+
+function bufferToHex(buffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+  const files = e.target.files;
+  const results = document.getElementById('hashResults');
+  results.innerHTML = '';
+
+  for (const file of files) {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hexHash = bufferToHex(hashBuffer);
+
+    results.innerHTML += `<p><strong>${file.name}</strong><br>SHA-256: <code>${hexHash}</code><br>` +
+      (knownHashes[hexHash] ? `✅ Match: ${knownHashes[hexHash]}` : '❌ No Match') + '</p>';
+  }
+});
+</script>
