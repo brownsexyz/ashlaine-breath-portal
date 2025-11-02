@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# -------------------------------------------------------------------
+# Fortran-AI-HPC-2025 v1.0.0 Release Automation
+# Owner: Joshua Waide Brownsey
+# -------------------------------------------------------------------
+set -euo pipefail
+trap 'echo "❌ Release aborted (line $LINENO)"; exit 1' ERR
+
+echo "🚀 Starting Fortran-AI-HPC-2025 v1.0.0 release..."
+
+# --- CONFIG ---------------------------------------------------------
+TAG="v1.0.0"
+ARCHIVE="Fortran-AI-HPC-2025_${TAG}.zip"
+RELEASE_TITLE="Fortran-AI-HPC-2025 ${TAG}"
+RELEASE_NOTES="RELEASE_NOTES.md"
+
+# --- PRECHECKS ------------------------------------------------------
+echo "🔍 Checking repository status..."
+git fetch --tags
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "❌ Workspace not clean. Commit or stash changes first."; exit 1
+fi
+
+if git rev-parse "$TAG" >/dev/null 2>&1; then
+  echo "⚠️ Tag $TAG already exists — skipping tag creation."
+else
+  echo "🔏 Creating signed tag $TAG..."
+  git tag -s "$TAG" -m "${RELEASE_TITLE}
+
+Precision: Mathematical foundation in Fortran real64
+Scalability: OpenMP + MPI + ScaLAPACK hybrid parallelism
+Interoperability: Clean C ABI with Python/CTypes bridge
+
+This release represents a standard of computational care
+demonstrating clarity, rigor, and interoperability."
+fi
+
+echo "📦 Building release archive..."
+zip -r "$ARCHIVE" \
+  .github/ benchmarks/ docs/ examples/ docker/ python/ \
+  CMakeLists.txt README.md CITATION.cff LICENSE RELEASE_NOTES.md \
+  >/dev/null
+
+echo "🔐 Generating checksum..."
+sha256sum "$ARCHIVE" > SHA256SUMS
+echo "Checksum:"
+cat SHA256SUMS
+
+echo "✅ Pushing tag to origin..."
+git push origin main --tags
+
+# --- RELEASE CREATION ----------------------------------------------
+echo "🛰️  Creating GitHub release..."
+if ! command -v gh >/dev/null 2>&1; then
+  echo "❌ GitHub CLI (gh) not installed. Install it first."
+  exit 1
+fi
+
+gh release create "$TAG" \
+  --title "$RELEASE_TITLE" \
+  --notes-file "$RELEASE_NOTES" \
+  "$ARCHIVE" SHA256SUMS
+
+echo "🎯 Release created successfully!"
+echo "Visit: https://github.com/<your-username>/Fortran-AI-HPC-2025/releases/tag/$TAG"
+
+# --- OPTIONAL POST ACTIONS -----------------------------------------
+echo "🚦 Triggering Benchmarks workflow..."
+gh workflow run Benchmarks || echo "⚠️ Benchmarks workflow trigger optional."
+
+echo "🏁 Fortran-AI-HPC-2025 ${TAG} release complete."
